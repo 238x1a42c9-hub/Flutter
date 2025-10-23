@@ -1,0 +1,86 @@
+Question 17: Show the start and end date in the date picker. But the end date should be 29 days ago from the start date. What will be your approach to getting this problem statement?
+
+
+Hint 1:- Use the date picker library for selecting the start and end date.
+
+Hint 2:- Add the logic which is end data should be 29 days ago from the start date.
+source code:
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: DateRangeExample(),
+  ));
+}
+
+class DateRangeExample extends StatefulWidget {
+  const DateRangeExample({super.key});
+
+  @override
+  State<DateRangeExample> createState() => _DateRangeExampleState();
+}
+
+class _DateRangeExampleState extends State<DateRangeExample> {
+  DateTime? startDate;
+  DateTime? endDate;
+
+  // Function to pick start date
+  Future<void> _pickStartDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        startDate = pickedDate;
+        endDate = pickedDate.subtract(const Duration(days: 29));
+      });
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return "Not selected";
+    return "${date.day}-${date.month}-${date.year}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Date Picker Example")),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => _pickStartDate(context),
+                child: const Text("Select Start Date"),
+              ),
+              const SizedBox(height: 30),
+
+              // Display start date
+              Text(
+                "Start Date: ${_formatDate(startDate)}",
+                style: const TextStyle(fontSize: 18),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Display end date (auto calculated)
+              Text(
+                "End Date (29 days ago): ${_formatDate(endDate)}",
+                style: const TextStyle(fontSize: 18, color: Colors.green),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
