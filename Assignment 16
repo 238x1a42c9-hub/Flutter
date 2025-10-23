@@ -1,0 +1,88 @@
+Question 21: Create a sample drawing app whose background should be white and where the user just draws something.
+
+Hint 1:- Use the inbuilt paint library of Dart.
+source code:
+import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: DrawingApp(),
+  ));
+}
+
+class DrawingApp extends StatefulWidget {
+  const DrawingApp({super.key});
+
+  @override
+  State<DrawingApp> createState() => _DrawingAppState();
+}
+
+class _DrawingAppState extends State<DrawingApp> {
+  // Store points for drawing
+  final List<Offset?> _points = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Simple Drawing App"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              setState(() => _points.clear());
+            },
+          )
+        ],
+      ),
+      body: GestureDetector(
+        onPanStart: (details) {
+          setState(() {
+            _points.add(details.localPosition);
+          });
+        },
+        onPanUpdate: (details) {
+          setState(() {
+            _points.add(details.localPosition);
+          });
+        },
+        onPanEnd: (details) {
+          setState(() {
+            _points.add(null); // separate strokes
+          });
+        },
+        child: CustomPaint(
+          painter: MyPainter(points: _points),
+          size: Size.infinite,
+          child: Container(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyPainter extends CustomPainter {
+  final List<Offset?> points;
+  MyPainter({required this.points});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 4.0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(MyPainter oldDelegate) => true;
+}
