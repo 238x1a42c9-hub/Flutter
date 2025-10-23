@@ -1,0 +1,86 @@
+Question 20: Is there any way to rotate an image clock clockwise and anti-clockwise by clicking on a single button?
+
+Hint 1:- Use RotationTransition widget for rotation purposes.
+
+Hint 2:- Add a button for controlling image rotation. 
+
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: RotateImageExample(),
+  ));
+}
+
+class RotateImageExample extends StatefulWidget {
+  const RotateImageExample({super.key});
+
+  @override
+  State<RotateImageExample> createState() => _RotateImageExampleState();
+}
+
+class _RotateImageExampleState extends State<RotateImageExample>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  bool isClockwise = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // AnimationController defines duration and vsync
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+
+    // Define Tween from 0 to 1 (full rotation)
+    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+  }
+
+  void _rotateImage() {
+    setState(() {
+      if (isClockwise) {
+        _controller.forward(from: 0); // Rotate clockwise
+      } else {
+        _controller.reverse(from: 1); // Rotate anti-clockwise
+      }
+      isClockwise = !isClockwise; // Toggle direction
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Rotate Image Example")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RotationTransition(
+              turns: _animation,
+              child: Image.network(
+                "https://cdn-icons-png.flaticon.com/512/25/25231.png", // Example image
+                width: 150,
+                height: 150,
+              ),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: _rotateImage,
+              child: const Text("Rotate Clockwise / Anti-Clockwise"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
