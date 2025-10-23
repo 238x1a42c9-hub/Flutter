@@ -1,0 +1,156 @@
+Question 16: How to Show this result based on the given details:
+
+True-answers=6
+Wrong -answers=0
+Total-questions=6
+Hint 1:- Use imageview and textview, containers for showing the image and text.
+
+Hint 2:- Add the logic for showing the result based on true, and false values out of total questions.
+
+Source Code : 
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const QuizResultApp());
+}
+
+class QuizResultApp extends StatelessWidget {
+  const QuizResultApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Quiz Result',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      home: const ResultScreen(
+        totalQuestions: 6,
+        trueAnswers: 6,
+        wrongAnswers: 0,
+      ),
+    );
+  }
+}
+
+class ResultScreen extends StatelessWidget {
+  final int totalQuestions;
+  final int trueAnswers;
+  final int wrongAnswers;
+
+  const ResultScreen({
+    super.key,
+    required this.totalQuestions,
+    required this.trueAnswers,
+    required this.wrongAnswers,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Calculate percentage and result status
+    final double percentage = (trueAnswers / totalQuestions) * 100;
+    final bool isPassed = percentage >= 50;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Stats row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildInfoBox(Colors.blue, "Total Question", totalQuestions),
+                  const SizedBox(width: 20),
+                  _buildInfoBox(Colors.green, "True Question", trueAnswers),
+                  const SizedBox(width: 20),
+                  _buildInfoBox(Colors.red, "Wrong Answer", wrongAnswers),
+                ],
+              ),
+
+              const SizedBox(height: 50),
+
+              // Circular percentage display
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: 120,
+                    width: 120,
+                    child: CircularProgressIndicator(
+                      value: percentage / 100,
+                      strokeWidth: 10,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.green,
+                    ),
+                  ),
+                  Text(
+                    "${percentage.toStringAsFixed(2)}%",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+              Text(
+                isPassed ? "Passed" : "Failed",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isPassed ? Colors.green : Colors.red,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Congratulations text
+              Text(
+                isPassed
+                    ? "Congratulations! You are passed."
+                    : "Better luck next time!",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Trophy image (you can replace this with your asset)
+              Image.network(
+                'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                height: 120,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget for showing result info
+  Widget _buildInfoBox(Color color, String title, int value) {
+    return Column(
+      children: [
+        Container(
+          height: 20,
+          width: 20,
+          color: color,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "$title\n$value",
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14),
+        ),
+      ],
+    );
+  }
+}
