@@ -1,0 +1,81 @@
+
+Question 10: Create a Provider that provides a counter value and a function to reset the counter to zero. Display the counter value in another widget and use a button to reset the counter.
+source code:
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
+      child: MyApp(),
+    ),
+  );
+}
+
+// Provider class for counter
+class CounterProvider with ChangeNotifier {
+  int counter = 0;
+
+  void increment() {
+    counter++;
+    notifyListeners();
+  }
+
+  void reset() {
+    counter = 0;
+    notifyListeners();
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CounterPage(),
+    );
+  }
+}
+
+class CounterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Provider Counter Reset Example")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Widget to display counter value
+            Consumer<CounterProvider>(
+              builder: (context, counterProvider, child) {
+                return Text(
+                  "Counter: ${counterProvider.counter}",
+                  style: TextStyle(fontSize: 30),
+                );
+              },
+            ),
+            SizedBox(height: 20),
+            // Increment button
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<CounterProvider>(context, listen: false)
+                    .increment();
+              },
+              child: Text("Increment Counter"),
+            ),
+            SizedBox(height: 10),
+            // Reset button
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<CounterProvider>(context, listen: false).reset();
+              },
+              child: Text("Reset Counter"),
+              style: ElevatedButton.styleFrom(primary: Colors.red),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
