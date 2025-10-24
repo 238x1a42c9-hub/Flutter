@@ -1,0 +1,156 @@
+Question 2: Create an alertDialog form with name, last name, email, and phone number and store all data in shared preferences and show it in UI after submitting the data. What will be your approach to solving this problem statement?
+
+Hint 1:- Use the alert dialog box and textformfield.
+
+Hint 2:- Use the shared preferences library to store the data of all fields.
+source code:
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(AlertFormApp());
+}
+
+class AlertFormApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'AlertDialog Form Demo',
+      home: FormHomePage(),
+    );
+  }
+}
+
+class FormHomePage extends StatefulWidget {
+  @override
+  _FormHomePageState createState() => _FormHomePageState();
+}
+
+class _FormHomePageState extends State<FormHomePage> {
+  // Controllers for text fields
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  String _savedData = ""; // To display saved data
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData(); // Load data from SharedPreferences on start
+  }
+
+  // Load data from SharedPreferences
+  Future<void> _loadSavedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedData = prefs.getString('userData') ?? "No data saved yet.";
+    });
+  }
+
+  // Save data to SharedPreferences
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userData =
+        "First Name: ${_firstNameController.text}\nLast Name: ${_lastNameController.text}\nEmail: ${_emailController.text}\nPhone: ${_phoneController.text}";
+    await prefs.setString('userData', userData);
+
+    setState(() {
+      _savedData = userData;
+    });
+  }
+
+  // Show AlertDialog Form
+  void _showFormDialog() {
+    final _formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Enter Your Details'),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _firstNameController,
+                    decoration: InputDecoration(labelText: 'First Name'),
+                    validator: (value) =>
+                        value!.isEmpty ? 'Please enter first name' : null,
+                  ),
+                  TextFormField(
+                    controller: _lastNameController,
+                    decoration: InputDecoration(labelText: 'Last Name'),
+                    validator: (value) =>
+                        value!.isEmpty ? 'Please enter last name' : null,
+                  ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(labelText: 'Email'),
+                    validator: (value) =>
+                        value!.isEmpty ? 'Please enter email' : null,
+                  ),
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(labelText: 'Phone Number'),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Please enter phone number' : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            ElevatedButton(
+              child: Text('Submit'),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _saveData();
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('AlertDialog Form Example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: _showFormDialog,
+              child: Text('Open Form'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Saved Data:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(_savedData),
+          ],
+        ),
+      ),
+    );
+  }
+}
