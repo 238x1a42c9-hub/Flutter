@@ -1,0 +1,101 @@
+Question 5: Create a Flutter program to fetch all image links and accompanying text from a Firestore collection and present them in cards with a left-to-right slide transition effect. Ensure the cards are scrollable.
+source code:
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: ImageCardsPage(),
+    );
+  }
+}
+
+class ImageCardsPage extends StatefulWidget {
+  @override
+  _ImageCardsPageState createState() => _ImageCardsPageState();
+}
+
+class _ImageCardsPageState extends State<ImageCardsPage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Image Cards')),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('images').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+
+          final items = snapshot.data!.docs;
+
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              var data = items[index].data() as Map<String, dynamic>;
+              final animation = Tween<Offset>(
+                begin: Offset(-1.0, 0.0),
+                end: Offset(0.0, 0.0),
+              ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+              return SlideTransition(
+                position: animation,
+                child: Container(
+                  width: 250,
+                  margin: EdgeInsets.all(10),
+                  child: Card(
+                    elevation: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: Image.network(
+                            data['imageUrl'] ?? '',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            data['text'] ?? '',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
