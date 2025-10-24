@@ -1,0 +1,114 @@
+Question 09: Build a Flutter application with two screens, "About" and "Home". Use a dedicated routing class and allow the background color of the Scaffold and AppBar in the About screen to be set from the Home screen.
+
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+// Dedicated Routing Class
+class AppRoutes {
+  static const String home = '/';
+  static const String about = '/about';
+
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case home:
+        return MaterialPageRoute(builder: (_) => HomeScreen());
+      case about:
+        // Receive arguments as a Map
+        final args = settings.arguments as Map<String, dynamic>?;
+        final Color bgColor = args?['color'] ?? Colors.white;
+        return MaterialPageRoute(
+            builder: (_) => AboutScreen(backgroundColor: bgColor));
+      default:
+        return MaterialPageRoute(
+            builder: (_) => Scaffold(
+                  body: Center(child: Text('No route defined')),
+                ));
+    }
+  }
+}
+
+// Main App
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Home & About Routing',
+      debugShowCheckedModeBanner: false,
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: AppRoutes.generateRoute,
+    );
+  }
+}
+
+// Home Screen
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    Color selectedColor = Colors.blue; // Example color
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home Screen'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Home Screen', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to About screen with color argument
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.about,
+                  arguments: {'color': selectedColor},
+                );
+              },
+              child: Text('Go to About Screen with Blue Background'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.about,
+                  arguments: {'color': Colors.green},
+                );
+              },
+              child: Text('Go to About Screen with Green Background'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// About Screen
+class AboutScreen extends StatelessWidget {
+  final Color backgroundColor;
+
+  AboutScreen({required this.backgroundColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor, // Set background color
+      appBar: AppBar(
+        title: Text('About Screen'),
+        backgroundColor: backgroundColor, // Set AppBar color
+      ),
+      body: Center(
+        child: Text(
+          'About Screen',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
