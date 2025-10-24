@@ -1,0 +1,101 @@
+Question 7: Create a Form with two TextFormFields that require user input and a button to submit the form. Use the Provider package to pass the form data to another widget.
+source code:
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => FormDataProvider(),
+      child: MyApp(),
+    ),
+  );
+}
+
+// Provider class to store form data
+class FormDataProvider with ChangeNotifier {
+  String firstName = '';
+  String lastName = '';
+
+  void updateData(String fName, String lName) {
+    firstName = fName;
+    lastName = lName;
+    notifyListeners(); // Notify listeners to rebuild UI
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: FormPage(),
+    );
+  }
+}
+
+class FormPage extends StatefulWidget {
+  @override
+  _FormPageState createState() => _FormPageState();
+}
+
+class _FormPageState extends State<FormPage> {
+  final _formKey = GlobalKey<FormState>();
+  String firstName = '';
+  String lastName = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Provider Form Example")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(labelText: "First Name"),
+                    validator: (value) =>
+                        value!.isEmpty ? "Enter first name" : null,
+                    onSaved: (value) => firstName = value!,
+                  ),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: "Last Name"),
+                    validator: (value) =>
+                        value!.isEmpty ? "Enter last name" : null,
+                    onSaved: (value) => lastName = value!,
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        // Update data in Provider
+                        Provider.of<FormDataProvider>(context, listen: false)
+                            .updateData(firstName, lastName);
+                      }
+                    },
+                    child: Text("Submit"),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 30),
+            // Widget to display data from Provider
+            Consumer<FormDataProvider>(
+              builder: (context, formData, child) {
+                return Text(
+                  "First Name: ${formData.firstName}\nLast Name: ${formData.lastName}",
+                  style: TextStyle(fontSize: 18),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
