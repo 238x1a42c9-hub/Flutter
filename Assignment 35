@@ -1,0 +1,64 @@
+Question 1: Write a Flutter program to construct a container similar to the one shown below:
+
+ 
+
+Picture1.png
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Custom Container Example"),
+        ),
+        body: Center(
+          child: Container(
+            width: 200,
+            height: 200,
+            padding: EdgeInsets.all(16), // Inner padding
+            margin: EdgeInsets.all(20), // Outer margin
+            decoration: BoxDecoration(
+              color: Colors.blueAccent, // Background color
+              borderRadius: BorderRadius.circular(20), // Rounded corners
+              border: Border.all(
+                color: Colors.black, // Border color
+                width: 2, // Border width
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5), // Shadow color
+                  spreadRadius: 3,
+                  blurRadius: 5,
+                  offset: Offset(0, 3), // Shadow position
+                ),
+              ],
+              gradient: LinearGradient(
+                colors: [Colors.blue, Colors.lightBlueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                "Hello Container",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
